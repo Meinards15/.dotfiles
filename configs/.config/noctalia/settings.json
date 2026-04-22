@@ -413,7 +413,7 @@
         "showScreenCorners": false,
         "showSessionButtonsOnLockScreen": true,
         "smoothScrollEnabled": true,
-        "telemetryEnabled": true
+        "telemetryEnabled": false
     },
     "hooks": {
         "colorGeneration": "",
@@ -621,7 +621,7 @@
     },
     "wallpaper": {
         "automationEnabled": false,
-        "directory": "/home/thadfake/Pictures/Wallpapers",
+        "directory": "/home/archuser/Pictures/Wallpapers",
         "enableMultiMonitorDirectories": false,
         "enabled": true,
         "favorites": [

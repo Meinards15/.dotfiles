@@ -20,11 +20,11 @@ map("x", "p", [["_dP]], { desc = "Paste without yank" })
 map({ "n", "v" }, "<Del>", '"_d', { desc = "Delete without yanking" })
 map("n", "<leader>nf", function()
     local dir = vim.fn.expand("%:p:h")
-    local filename = vim.fn.input("New file: ", dir .. "/")
-    if filename ~= "" then
-        vim.cmd("e " .. filename)
+    local tgrande = vim.fn.input("New file: ", dir .. "/")
+    if tgrande ~= "" then
+        vim.cmd("e " .. tgrande)
     end
-end, { desc = "Create new file in current directory" })
+end, { desc = "Create New File in Current Directory" })
 
 
 --- ## Navigation ##

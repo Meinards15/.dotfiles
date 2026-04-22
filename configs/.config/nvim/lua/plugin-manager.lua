@@ -101,6 +101,22 @@ require("lazy").setup({
         event = "VeryLazy",
         opts  = {},
     },
+    {
+        "akinsho/toggleterm.nvim",
+        config = function()
+            require("toggleterm").setup()
+            local term = require("toggleterm.terminal").Terminal
+            local test = term:new({
+                cmd = "lazygit",
+                direction = "horizontal",
+                hidden = true,
+            })
+
+            vim.keymap.set("n", "<leader>lg", function()
+                test:toggle()
+            end, { desc = "t" })
+        end
+    },
 
 })
 

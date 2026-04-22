@@ -17,6 +17,7 @@ spawn-at-startup "xwayland-satellite" ":1"
 
 // XWayland-Satelite
 environment {
+    DISPLAY ":1"
     QT_QPA_PLATFORM "wayland"
     QT_WAYLAND_DISABLE_WINDOWDECORATION "1"
     ELECTRON_OZONE_PLATFORM_HINT "auto"

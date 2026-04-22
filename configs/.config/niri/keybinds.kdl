@@ -17,7 +17,9 @@ binds {
     Mod+Shift+Slash { show-hotkey-overlay; }
 
     // Suggested binds for running programs: terminal, app launcher, screen locker.
-    Mod+Grave hotkey-overlay-title="Open Terminal" { spawn "wezterm"; }
+    Mod+Grave hotkey-overlay-title="Open Terminal [Grave]" { spawn "wezterm"; }
+    Mod+Apostrophe hotkey-overlay-title="Open Terminal [Apostrophe]" { spawn "wezterm"; }
+
     Mod+Return hotkey-overlay-title="App Search" { spawn "rofi" "-show" "drun"; }
     Super+Alt+L hotkey-overlay-title="Lock the Screen: swaylock" { spawn "swaylock"; }
 
