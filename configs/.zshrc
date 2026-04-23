@@ -16,6 +16,7 @@ export EDITOR=nvim
 alias pkg-reload="paru -Syy && sudo pacman -S - < pacman-pkgs --needed && paru -Sa - < paru-pkgs --needed && paru -Syy"
 alias configs="cd ~/.dotfiles/configs"
 alias ls="ls -Fa --color=auto"
+alias pj="cd ~/projects"
 
 # Set name of the theme to load --- if set to "random", it will
 # load a random theme each time Oh My Zsh is loaded, in which case,
