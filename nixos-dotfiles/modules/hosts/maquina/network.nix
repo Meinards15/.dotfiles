@@ -100,7 +100,7 @@
         enable          = false;
         openFirewall    = false;  # Tor is local-only; don't expose to LAN
         settings = {
-            SOCKSPort = [ "127.0.0.1:9050" ];
+            SOCKSPort = "127.0.0.1:9050";
 
             # Transparent proxy (optional — routes all TCP via Tor for a user)
             # TransPort    = "9040";

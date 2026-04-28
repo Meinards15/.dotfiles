@@ -53,15 +53,14 @@
 
     ## Display Manager - [ Ly ]
     services.displayManager.ly = {
-        enable = true;
+        enable   = true;
         settings = {
-            tty            = lib.mkForce 2;
-            lock_timeout   = 0;
-            save           = true;  # remember last session in /var/cache/ly
-            animation      = 0;     
-            vi_mode        = false;
-            hide_borders   = false;
-            clear_password = true;
+            tty = 2;
+            # Valid ly.ini keys — uncomment as needed:
+            # animate        = false;
+            # hide_borders   = false;
+            # vi_mode        = false;
+            # clear_password = true;
         };
     };
     ## + ly in tty2 | - tty in tty2 
@@ -122,9 +121,6 @@
         config.common.default   = "*";
     };
 
-    ## Polkit
-    # polkit-gnome is spawned from niri config.kdl spawn-at-startup.
-    security.polkit.enable = true;
 
     ## SSH Setup
     # services.openssh = {

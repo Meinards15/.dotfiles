@@ -97,7 +97,7 @@ in
         "/nix" = {
             device  = "/dev/disk/by-label/nixos";
             fsType  = "btrfs";
-            options = btrfsOpts ++ [ "subvol=@nix" "nodatacow" ];
+            options = [ "noatime" "space_cache=v2" "discard=async" "subvol=@nix" "nodatacow" ];  # no compress= — btrfs: nodatacow incompatible with compression
         };
 
         "/.snapshots" = {
@@ -146,7 +146,7 @@ in
     # lsblk -f
     fileSystems."/mnt/NAS" = {
         device  = "/dev/disk/by-uuid/C3548E44E9DC46C6";
-        fsType  = "ntfs-3g";
+        fsType  = "ntfs3";  # kernel built-in (Linux 5.15+)
         options = [ "defaults" "nofail" "noatime" "x-systemd.automount" ];
     };
 }

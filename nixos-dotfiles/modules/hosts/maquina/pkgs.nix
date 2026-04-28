@@ -19,7 +19,7 @@
 #   users/
 #     thadfake/       — user-specific installs        (owner: thadfake         0700)
 
-{ config, pkgs, lib, ... }:
+{ config, pkgs, lib, inputs, ... }:
 
 {
     # ── Nix Daemon Configuration ───────────────────────────────────────────────
@@ -48,8 +48,8 @@
             options   = "--delete-older-than 14d";  # keep 2 weeks of generations
         };
 
-        registry.nixpkgs.flake = pkgs.lib.mkIf (config ? _module.args.inputs)
-            config._module.args.inputs.nixpkgs or {};
+        registry.nixpkgs.flake = inputs.nixpkgs;
+        nixPath = lib.mkDefault [ "nixpkgs=${inputs.nixpkgs}" ];
     };
 
     ## System PKGS

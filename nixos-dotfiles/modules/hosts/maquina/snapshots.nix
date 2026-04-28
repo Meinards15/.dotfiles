@@ -37,8 +37,8 @@
         ALLOW_GROUPS = [ "wheel" ];
         ALLOW_USERS  = [];
         # Timeline schedule — hourly snapshots, cleaned by aging algorithm
-        TIMELINE_CREATE  = true;
-        TIMELINE_CLEANUP = true;
+        TIMELINE_CREATE  = "yes";
+        TIMELINE_CLEANUP = "yes";
         # Retention: keep 10 hourly, 7 daily, 4 weekly, 6 monthly, 2 yearly
         TIMELINE_LIMIT_HOURLY  = "10";
         TIMELINE_LIMIT_DAILY   = "7";
@@ -47,7 +47,7 @@
         TIMELINE_LIMIT_YEARLY  = "2";
         # Safety: stop creating snapshots if less than 20 % disk space remains
         SPACE_LIMIT            = "0.2";
-        EMPTY_PRE_POST_CLEANUP = true;  # delete empty pre/post pairs
+        EMPTY_PRE_POST_CLEANUP = "yes";  # delete empty pre/post pairs
     };
 
     # ── snapper: /home ────────────────────────────────────────────────────────
@@ -56,8 +56,8 @@
         ALLOW_GROUPS = [ "wheel" ];
         ALLOW_USERS  = [ "thadfake" ];  # user can manage their own home snapshots
 
-        TIMELINE_CREATE  = true;
-        TIMELINE_CLEANUP = true;
+        TIMELINE_CREATE  = "yes";
+        TIMELINE_CLEANUP = "yes";
 
         # Home changes more often — keep more recent granularity
         TIMELINE_LIMIT_HOURLY  = "24";
@@ -67,7 +67,7 @@
         TIMELINE_LIMIT_YEARLY  = "3";
 
         SPACE_LIMIT            = "0.2";
-        EMPTY_PRE_POST_CLEANUP = true;
+        EMPTY_PRE_POST_CLEANUP = "yes";
     };
 
     # ── snapper: /opt/packages (@pkgs) ────────────────────────────────────────
@@ -78,8 +78,8 @@
         ALLOW_GROUPS = [ "wheel" "isolpkg" "syspkg" ];
         ALLOW_USERS  = [];
 
-        TIMELINE_CREATE  = true;
-        TIMELINE_CLEANUP = true;
+        TIMELINE_CREATE  = "yes";
+        TIMELINE_CLEANUP = "yes";
 
         TIMELINE_LIMIT_HOURLY  = "6";
         TIMELINE_LIMIT_DAILY   = "7";
@@ -88,7 +88,7 @@
         TIMELINE_LIMIT_YEARLY  = "1";
 
         SPACE_LIMIT            = "0.2";
-        EMPTY_PRE_POST_CLEANUP = true;
+        EMPTY_PRE_POST_CLEANUP = "yes";
     };
 
     # ── btrbk: backup to external drive ──────────────────────────────────────
