@@ -15,7 +15,7 @@
 # Windows HDD UUID: 3825-E29D  (FAT32 ESP on the Windows drive)
 # Linux  HDD UUID:  9522-AC86  (FAT32 ESP on this NixOS drive — /boot)
 
-{ config, lib, pkgs, modulesPath, ... }:
+{ inputs, config, lib, pkgs, modulesPath, ... }:
 
 let
     # compress=zstd:1  - transparent compression (level 1 = fast, good ratio)
@@ -28,21 +28,27 @@ in
 {
     imports = [
         (modulesPath + "/installer/scan/not-detected.nix")
+        inputs.impermanence.nixosModules.impermanence
     ];
 
-    ## Kernel Modules 
+    ## Kernel Modules
     boot.initrd.availableKernelModules = [
         "xhci_pci" "ahci" "nvme" "usb_storage" "usbhid" "sd_mod"
     ];
-    boot.initrd.kernelModules = [];
+    boot.initrd.supportedFilesystems = [ "btrfs" ];
+    boot.initrd.kernelModules = [ "btrfs" "dm-mod" "dm-crypt" ];
     boot.kernelModules        = [ "kvm-amd" ];
-    boot.extraModulePackages  = [];
+    boot.extraModulePackages  = [ ];
 
     ## CPU Microcode
     hardware.cpu.amd.updateMicrocode =
         lib.mkDefault config.hardware.enableRedistributableFirmware;
-    # hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
-    
+    # hardware.cpu.intel.updateMicrocode =
+    #   lib.mkDefault config.hardware.enableRedistributableFirmware;
+
+    ## Kernel
+    nixpkgs.overlays = [ inputs.nix-cachyos-kernel.overlays.default ];
+    boot.kernelPackages = pkgs.cachyosKernels.linuxPackages-cachyos-latest;
     # boot.kernelPackages = pkgs.linuxPackages_latest;
 
     ## GRUB
@@ -51,7 +57,6 @@ in
             canTouchEfiVariables = true;
             efiSysMountPoint     = "/boot";
         };
-
         grub = {
             enable       = true;
             efiSupport   = true;
@@ -61,9 +66,7 @@ in
             # font         = "";
             # splashImage  = null;
             extraEntries = ''
-                # Manual fallback entry for the Windows EFI partition.
-                # os-prober should add this automatically, but keeping it here
-                # ensures Windows is always present even if os-prober fails.
+                # Manual fallback entry for the Windows EFI partition
                 menuentry "Windows (manual)" {
                     search --set=root --fs-uuid 3825-E29D
                     chainloader /EFI/Microsoft/Boot/bootmgfw.efi
@@ -72,14 +75,19 @@ in
         };
     };
 
-    environment.systemPackages = [ pkgs.os-prober ];
-
     ## Filesystem Template Setup
     fileSystems = {
         "/boot" = {
             device  = "/dev/disk/by-uuid/9522-AC86";
             fsType  = "vfat";
             options = [ "fmask=0022" "dmask=0022" ];
+        };
+
+        "/persistent" = {
+            device  = "/dev/disk/by-label/nixos";
+            neededForBoot = true;
+            fsType  = "btrfs";
+            options = btrfsOpts ++ [ "subvol=@" ];
         };
 
         "/" = {
@@ -97,7 +105,7 @@ in
         "/nix" = {
             device  = "/dev/disk/by-label/nixos";
             fsType  = "btrfs";
-            options = [ "noatime" "space_cache=v2" "discard=async" "subvol=@nix" "nodatacow" ];  # no compress= — btrfs: nodatacow incompatible with compression
+            options = [ "noatime" "space_cache=v2" "discard=async" "subvol=@nix" "nodatacow" ];
         };
 
         "/.snapshots" = {
@@ -124,13 +132,16 @@ in
             fsType  = "btrfs";
             options = btrfsOpts ++ [ "subvol=@cache" ];
         };
+        ## Auto-Mounting Drives
+        # lsblk -f
+        #"/mnt/NAS" = {
+        #    device  = "/dev/disk/by-uuid/C3548E44E9DC46C6";
+        #    fsType  = "ntfs-3g";
+        #    options = [ "defaults" "nofail" "noatime" "x-systemd.automount" ];
+        #};
     };
 
-    # ── Swap ──────────────────────────────────────────────────────────────────
-    swapDevices = [
-        # { device = "/dev/disk/by-uuid/3163ee5a-a18b-43dc-81b7-b0a10f78ec40"; }
-    ];
-
+    ## Zram
     zramSwap = {
         enable        = true;
         priority      = 100;
@@ -139,14 +150,12 @@ in
     };
 
     ## Platform
-    nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
     networking.useDHCP   = lib.mkDefault true;
 
-    ## Auto-Mounting Drives
-    # lsblk -f
-    fileSystems."/mnt/NAS" = {
-        device  = "/dev/disk/by-uuid/C3548E44E9DC46C6";
-        fsType  = "ntfs3";  # kernel built-in (Linux 5.15+)
-        options = [ "defaults" "nofail" "noatime" "x-systemd.automount" ];
-    };
+    environment.systemPackages = with pkgs; [
+        os-prober
+        btrfs-prog
+        compsize
+        ntfs3g
+    ];
 }

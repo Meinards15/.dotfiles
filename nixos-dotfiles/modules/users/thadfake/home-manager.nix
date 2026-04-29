@@ -1,14 +1,3 @@
-# modules/users/thadfake/home-manager.nix — Home Manager configuration
-#
-# Plain NixOS module (not a flake-parts module).
-# Imported by modules/hosts/maquina/default.nix.
-# Configures home-manager.users.thadfake and wires useGlobalPkgs/useUserPackages.
-#
-# Adding a new app config:
-#   1. Drop config dir under configs/.config/<appname>/
-#   2. Add  <appname> = "<appname>";  to the configs attrset below
-#   3. nixos-rebuild switch
-
 { pkgs, lib, config, ... }:
 
 let
@@ -29,8 +18,8 @@ in
 {
     ## Wire home-manager into this NixOS system
     home-manager = {
-        useGlobalPkgs   = true;   # share nixpkgs — no double-eval
-        useUserPackages = true;   # install HM packages into user profile
+        useGlobalPkgs   = true;
+        useUserPackages = true;
         users.${user} = { config, lib, pkgs, ... }: {
             imports = [ ../thadfake/pkgs.nix ];
 
@@ -54,7 +43,7 @@ in
                 XDG_DOCS_DIR        = "$HOME/Documentation";
                 XDG_PROJECTS_DIR    = "$HOME/Projects";
 
-                ## Wayland / Qt / Electron hints
+                ## Wayland / Qt / Electron
                 QT_QPA_PLATFORM                     = "wayland";
                 QT_WAYLAND_DISABLE_WINDOWDECORATION = "1";
                 ELECTRON_OZONE_PLATFORM_HINT        = "auto";

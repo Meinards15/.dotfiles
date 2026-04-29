@@ -1,11 +1,17 @@
 {
     description = "nixos dotfiles da silva";
 
-    inputs = {
-        ## NixPKGs Channels
-        nixpkgs.url           = "github:NixOS/nixpkgs/nixos-unstable";
-        nixpkgs-stable.url    = "github:NixOs/nixpkgs/nixos-25.11";
-        nixpkgs-oldstable.url = "github:NixOs/nixpkgs/nixos-25.05";
+    inputs = { 
+        ## Flakes Setup
+        # [ Default Channel - NixOS-unstable ]
+        nixpkgs.url             = "github:NixOS/nixpkgs/nixos-unstable";
+        nixpkgs-stable.url      = "github:NixOS/nixpkgs/nixos-25.11";
+        nixpkgs-oldstable.url   = "github:NixOS/nixpkgs/nixos-25.05";
+
+        flake-parts.url         = "github:hercules-ci/flake-parts";
+        import-tree.url         = "github:denful/import-tree";
+        wrapper-modules.url     = "github:BirdeeHub/nix-wrapper-modules";
+        impermanence.uril       = "github:nix-community/impermanence";
 
         ## Custom Repository
         # custom-repo = {
@@ -13,40 +19,89 @@
         #     url = "git+file:///srv/repos/repoPath";
         # };
 
-        ## Flakes Setup
-        flake-parts.url     = "github:hercules-ci/flake-parts";
-        import-tree.url     = "github:vic/import-tree";
-        wrapper-modules.url = "github:BirdeeHub/nix-wrapper-modules";
-
-        ## Home Manager [ Change Versions ]
+        ## Custom Packages
+        # Home Manager - [ Version = NixOS Version ]
         home-manager = {
             url = "github:nix-community/home-manager/release-25.11";
             inputs.nixpkgs.follows = "nixpkgs";
         };
 
-        ## Custom CachyOS made for NixOS
-        nix-cachyos-kernel.url = "github:xddxdd/nix-cachyos-kernel";
+        # NixOS Kernel - [ Custom CachyOS-kernel Port ]
+        nix-cachyos-kernel = {
+            url = "github:xddxdd/nix-cachyos-kernel/release";
+            inputs.nixpkgs.follows = "nixpkgs";
+        };
 
-        # ── Niri Compositor ───────────────────────────────────────────────────
-        # Uncomment to track niri master ahead of nixpkgs.
-        # niri.url = "github:YaLTeR/niri";
+        # Niri - [ Desktop Environment ]
+        niri = {
+            url = "github:YaLTeR/niri";
+            inputs.nixpkgs.follows = "nixpkgs";
+        };
 
-        # ── Secrets — agenix ──────────────────────────────────────────────────
-        # age-encrypted secrets committed to the repo; decrypted at activation.
-        # Workflow: edit secret → `agenix -e secret.age` → commit .age file.
-        # agenix = {
-        #     url = "github:ryantm/agenix";
-        #     inputs.nixpkgs.follows = "nixpkgs";
-        # };
+        # Agenix
+        agenix = {
+            url = "github:ryantm/agenix";
+            inputs.nixpkgs.follows = "nixpkgs";
+        };
 
-        # ── Impermanence (optional) ────────────────────────────────────────────
-        # Wipes / on every boot; only explicitly declared paths survive.
+        # Impermanence
         # Pairs with a @blank btrfs subvolume for a clean-slate root each boot.
-        # impermanence.url = "github:nix-community/impermanence";
+        impermanence.url = "github:nix-community/impermanence";
     };
 
-    outputs = inputs@{ flake-parts, ... }:
+    outputs = { flake-parts, nix-cachyos-kernel, impermanence, agenix, home-manager, ... }@inputs:
         flake-parts.lib.mkFlake { inherit inputs; } {
-            imports = [ ./modules ];
+            systems = [ "x86_64-linux" ];
+
+            imports = [
+                ./modules/default.nix
+            ];
+
+            nixosConfigurations = {
+                maquina = inputs.nixpkgs.lib.nixosSystem {
+                    system = "x86_64-linux";
+                    specialArgs = { inherit inputs; };
+                    modules = [
+                        ## /modules/hosts/maquina
+                        ./hosts/maquina/configuration.nix
+                        impermanence.nixosModules.impermanence
+                        agenix.nixosModules.age
+                        home-manager.nixosModules.home-manager
+                        {
+                            nixpkgs.overlays = [ nix-cachyos-kernel.overlays.default ];
+                            boot.kernelPackages = pkgs: pkgs.linuxPackages_cachyos;
+                        }
+                        {
+                            home-manager = {
+                                useGlobalPkgs = true;
+                                useUserPackages = true;
+                                users = {
+                                    ## /modules/users/thadfake
+                                    thadfake = import ./users/thadfake/home.nix;
+                                };
+                            };
+                        }
+                    ];
+                };
+
+                maquina-vm = inputs.nixpkgs.lib.nixosSystem {
+                    system = "x86_64-linux";
+                    specialArgs = { inherit inputs; };
+                    modules = [
+                        impermanence.nixosModules.impermanence
+                        agenix.nixosModules.age
+                        ./hosts/maquina-vm/configuration.nix
+                        home-manager.nixosModules.home-manager
+                        {
+                        home-manager = {
+                            useGlobalPkgs = true;
+                            useUserPackages = true;
+                            users.thadfake = import ./users/thadfake/home.nix;
+                            };
+                        }
+                    ];
+                };
+            };
         };
+
 }
