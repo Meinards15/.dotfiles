@@ -1,0 +1,93 @@
+// ## NIRI CONFIG SETUP ##
+// ─────────────────────────────────────────────────────────────────────────────
+// config.kdl — main entry point; imports sub-configs from dms/
+//
+// Sub-config map:
+//   keybinds.kdl    — all keyboard shortcuts
+//   workstate.kdl   — workspace persistence / rules
+//   visual.kdl      — borders, shadows, opacity, corner radius
+//   dms/layout.kdl  — column widths, gaps, focus ring
+//   dms/colors.kdl  — color palette
+//   dms/wpblur.kdl  — wallpaper + blur settings
+//   dms/alttab.kdl  — alt-tab switcher
+//   dms/outputs.kdl — monitor configuration
+//   dms/cursor.kdl  — cursor theme / size
+//   dms/binds.kdl   — extra binds (device-specific)
+//   dms/windowrules.kdl — per-app window rules
+
+include "keybinds.kdl"
+include "workstate.kdl"
+include "visual.kdl"
+
+// ── Startup Programs ───────────────────────────────────────────────────────
+// Polkit agent — needed for GUI password prompts (package path set by NixOS)
+spawn-at-startup "polkit-gnome-authentication-agent-1"
+
+// Quickshell noctalia shell
+spawn-at-startup "qs" "-c" "noctalia-shell"
+
+// Wallpaper
+// spawn-at-startup "swaybg" "-i" "$HOME/Pictures/wallpaper.jpg"
+
+// Clipboard history daemon
+spawn-at-startup "cliphist" "daemon"
+
+// Notification daemon
+spawn-at-startup "dunst"
+
+// XWayland compatibility layer (rootless — no display manager needed)
+spawn-at-startup "xwayland-satellite" ":1"
+
+// Browser and terminal open on first login
+spawn-at-startup "zen-browser"
+spawn-at-startup "wezterm"
+
+// ── Environment Variables ──────────────────────────────────────────────────
+environment {
+    QT_QPA_PLATFORM                     "wayland"
+    QT_WAYLAND_DISABLE_WINDOWDECORATION "1"
+    ELECTRON_OZONE_PLATFORM_HINT        "auto"
+    GDK_BACKEND                         "wayland,x11"
+    SDL_VIDEODRIVER                     "wayland,x11"
+    CLUTTER_BACKEND                     "wayland"
+    MOZ_ENABLE_WAYLAND                  "1"
+    // XWayland display number (must match xwayland-satellite arg above)
+    DISPLAY                             ":1"
+}
+
+// ── Hotkey Overlay ─────────────────────────────────────────────────────────
+hotkey-overlay {
+    skip-at-startup
+}
+
+// ── Screenshots ────────────────────────────────────────────────────────────
+screenshot-path "~/Pictures/Screenshots/screenshot_%Y-%m-%d_%H-%M-%S.jpeg"
+
+// ── Window Rules ───────────────────────────────────────────────────────────
+
+// WezTerm: no forced column width (let it take what it wants)
+window-rule {
+    match app-id=r#"^org\.wezfurlong\.wezterm$"#
+    default-column-width {}
+}
+
+// Firefox PiP: always floating
+window-rule {
+    match app-id=r#"firefox$"# title="^Picture-in-Picture$"
+    open-floating true
+}
+
+// Fuzzel (launcher): float above everything
+window-rule {
+    match app-id="fuzzel"
+    open-floating true
+}
+
+// Block password manager windows from screencasts
+/-window-rule {
+    match app-id=r#"^org\.keepassxc\.KeePassXC$"#
+    match app-id=r#"^org\.gnome\.World\.Secrets$"#
+    block-out-from "screen-capture"
+    // Use this instead to allow third-party screenshot tools:
+    // block-out-from "screencast"
+}
