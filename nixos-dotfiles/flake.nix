@@ -93,15 +93,15 @@
                         ./hosts/maquina-vm/configuration.nix
                         home-manager.nixosModules.home-manager
                         {
-                        home-manager = {
-                            useGlobalPkgs = true;
-                            useUserPackages = true;
-                            users.thadfake = import ./users/thadfake/home.nix;
+                            home-manager = {
+                                useGlobalPkgs = true;
+                                useUserPackages = true;
+                                users.thadfake = import ./users/thadfake/home.nix;
                             };
                         }
                     ];
                 };
-            };
+            }
         };
 
 }

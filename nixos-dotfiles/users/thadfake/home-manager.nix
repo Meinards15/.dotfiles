@@ -21,7 +21,10 @@ in
         useGlobalPkgs   = true;
         useUserPackages = true;
         users.${user} = { config, lib, pkgs, ... }: {
-            imports = [ ../thadfake/pkgs.nix ];
+            imports = [ 
+                ./user-pkgs.nix
+                ./software/steam.nix
+            ];
 
             ## Session Variables
             home.sessionVariables = {

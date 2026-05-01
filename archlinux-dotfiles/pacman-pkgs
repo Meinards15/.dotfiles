@@ -28,15 +28,14 @@ noto-fonts-emoji
 noto-fonts-extra
 ttf-fira-mono
 less
-unrar
-pavu-control
 exfatprogs
 keepassxc
 qt5-wayland
 qt6-wayland
 unzip
 unrar
-
+7zip
+rustup
 
 
 

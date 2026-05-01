@@ -1,27 +1,10 @@
-########################################
-########################################
-###                                  ### 
-###   @           --> /              ###
-###   @home       --> /home          ###
-###   @nix        --> /nix           ###
-###   @snapshots  --> /.snapshots    ###
-###   @pkgs       --> /opt/packages  ###
-###   @log        --> /var/log       ###
-###   @cache      --> /var/cache     ###
-###                                  ###
-########################################
-########################################
 
-# Windows HDD UUID: 3825-E29D  (FAT32 ESP on the Windows drive)
-# Linux  HDD UUID:  9522-AC86  (FAT32 ESP on this NixOS drive — /boot)
+## Windows = 3825-E29D 
+## Linux = 9522-AC86 
 
 { inputs, config, lib, pkgs, modulesPath, ... }:
 
 let
-    # compress=zstd:1  - transparent compression (level 1 = fast, good ratio)
-    # noatime          - don't update access timestamps (reduces write pressure)
-    # space_cache=v2   - faster free-space lookups
-    # discard=async    - SSD TRIM issued asynchronously (safer than sync)
     btrfsOpts = [ "compress=zstd:1" "noatime" "space_cache=v2" "discard=async" ];
 in
 
@@ -78,7 +61,7 @@ in
     ## Filesystem Template Setup
     fileSystems = {
         "/boot" = {
-            device  = "/dev/disk/by-uuid/9522-AC86";
+            device  = "/dev/disk/by-label/boot";
             fsType  = "vfat";
             options = [ "fmask=0022" "dmask=0022" ];
         };
@@ -132,7 +115,8 @@ in
             fsType  = "btrfs";
             options = btrfsOpts ++ [ "subvol=@cache" ];
         };
-        ## Auto-Mounting Drives
+
+        ## Additional Storage Drives
         # lsblk -f
         #"/mnt/NAS" = {
         #    device  = "/dev/disk/by-uuid/C3548E44E9DC46C6";
@@ -152,6 +136,7 @@ in
     ## Platform
     networking.useDHCP   = lib.mkDefault true;
 
+    ## Ensure Hardware Packages
     environment.systemPackages = with pkgs; [
         os-prober
         btrfs-prog

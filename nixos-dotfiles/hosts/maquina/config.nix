@@ -2,14 +2,15 @@
 
 {
     imports = [
-        ./hardware.nix
+        ../../core/virtualization.nix
+        ../../core/hardware.nix
+        ../../security/hardening.nix
+        ../../security/network.nix
+        ./backup.nix
+        ./containers.nix
         ./host-pkg.nix
-        ./hardening.nix
         ./users.nix
-        ./snapshots.nix
-        ./pkg-sandbox.nix
-        ./network.nix
-    ];
+   ];
 
     ## System Info
     # Version = NixOS Version
@@ -33,8 +34,8 @@
     environment.variables = {
         EDITOR = "nvim";
         # XDG
-        XDG_DATA_DIRS   = lib.mkDefault "/usr/local/share:/usr/share";
-        XDG_CONFIG_DIRS = lib.mkDefault "/etc/xdg";
+        XDG_DATA_DIRS   = lib.mkForce "/usr/local/share:/usr/share";
+        XDG_CONFIG_DIRS = lib.mkForce "/etc/xdg";
     };
 
     ## General Service Setup
@@ -47,7 +48,7 @@
     services.displayManager.ly = {
         enable   = true;
         settings = {
-            tty  = 2;
+            tty  = lib.mkForce 2;
             # Valid ly.ini keys — uncomment as needed:
             # animate        = false;
             # hide_borders   = false;

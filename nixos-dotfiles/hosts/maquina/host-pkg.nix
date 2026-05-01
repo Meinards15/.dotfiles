@@ -1,11 +1,7 @@
-# modules/hosts/maquina/pkgs.nix — nix daemon, system packages, @pkgs layout
-#
-# ─── Package channels ─────────────────────────────────────────────────────────
 # Default channel: nixpkgs (unstable). To pull a single package from another
 # channel, pass `inputs` via specialArgs and use:
 #   inputs.nixpkgs-stable.legacyPackages.x86_64-linux.<pkg>
 #
-# ─── @pkgs subvolume directory layout ────────────────────────────────────────
 # /opt/packages/
 #   appimages/        — AppImage bundles              (owner: thadfake:syspkg  0770)
 #   scripts/          — standalone shell scripts      (owner: thadfake:syspkg  0770)
@@ -22,7 +18,7 @@
 { config, pkgs, lib, inputs, ... }:
 
 {
-    # ── Nix Daemon Configuration ───────────────────────────────────────────────
+    ## Nix Configuration 
     nix = {
         settings = {
             experimental-features = [ "nix-command" "flakes" ];
@@ -45,11 +41,11 @@
             trusted-users = [ "root" "thadfake" ];
         };
 
-        ## Cleaning Old PKGS
+        ## Garbage Collector
         gc = {
             automatic = true;
             dates     = "weekly";
-            options   = "--delete-older-than 14d";  # keep 2 weeks of generations
+            options   = "--delete-older-than 14d";  # 2 Weeks
         };
 
         registry.nixpkgs.flake = inputs.nixpkgs;
@@ -113,12 +109,6 @@
 
         ## Display Manager
         ly                      # TTY-based session manager (greeter)
-
-        ## Desktop
-        niri                    # Wayland compositor (scrollable tiling)
-
-        ## os-prober (needed by GRUB to find Windows entry)
-        os-prober
 
         ## Fonts
         nerd-fonts.jetbrains-mono
